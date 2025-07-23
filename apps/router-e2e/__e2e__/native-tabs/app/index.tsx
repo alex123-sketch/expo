@@ -15,6 +15,18 @@ export default function Index() {
       <Text style={{ color: '#ddd', fontSize: 24, marginBottom: 16 }}>
         If you have a watch, this is an app for you!
       </Text>
+      <Link
+        href="/faces/l1/l2"
+        style={{
+          color: '#fff',
+          fontSize: 18,
+          padding: 16,
+          borderRadius: 8,
+          backgroundColor: '#333',
+        }}>
+        <Link.Trigger>Go to /faces/l1/l2</Link.Trigger>
+        <Link.Preview />
+      </Link>
       <Link href="/404" style={{ color: '#fff', fontSize: 18 }}>
         Try and go to 404
       </Link>

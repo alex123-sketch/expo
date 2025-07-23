@@ -15,8 +15,6 @@ import { withLayoutContext } from '../..';
 import { BottomTabAccessoryProvider } from './NativeTabsViewContext';
 import { Tab } from './TabOptions';
 
-enableFreeze(true);
-
 function NativeTabsNavigator({
   children,
   ...rest

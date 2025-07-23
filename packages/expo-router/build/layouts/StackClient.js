@@ -249,6 +249,7 @@ const stackRouterOverride = (original) => {
                                 }
                                 : action.payload.params,
                         };
+                        console.log('PRELOAD', currentPreloadedRoute.name, currentPreloadedRoute.key);
                         // END FORK
                         return {
                             ...state,
@@ -344,6 +345,7 @@ const Stack = Object.assign((props) => {
         return (<ModalStack_web_1.RouterModal {...props} screenOptions={screenOptions} UNSTABLE_router={exports.stackRouterOverride}/>);
     }
     else {
+        console.log('>>>> Stack component');
         return (<RNStack {...props} screenOptions={screenOptions} UNSTABLE_router={exports.stackRouterOverride}/>);
     }
 }, {

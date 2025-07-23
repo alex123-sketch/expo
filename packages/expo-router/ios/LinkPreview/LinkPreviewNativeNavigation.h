@@ -1,6 +1,7 @@
 // Copyright 2015-present 650 Industries. All rights reserved.
 
 #import <RNScreens/RNSScreenStack.h>
+#import <RNScreens/RNSTabBarController.h>
 
 @interface LinkPreviewNativeNavigation: NSObject
 

@@ -9,9 +9,13 @@
 @implementation LinkPreviewNativeNavigation {
   RNSScreenView *preloadedScreenView;
   RNSScreenStackView *stackView;
+  RNSTabsScreenViewController* tabView;
 }
 
 - (void)pushPreloadedView {
+    if(tabView != nil){
+        tabView.tabBarController.selectedIndex = 1;
+    }
   if (preloadedScreenView != nil && stackView != nil) {
     // Instead of pushing the preloaded screen view, we set its activity state
     // React native screens will then handle the rest.
@@ -59,6 +63,7 @@
 - (void)updatePreloadedView:(nullable NSString *)screenId
             withUiResponder:(nonnull UIResponder *)responder {
   if (screenId != nil && [screenId length] > 0) {
+  tabView =  [self findTabViewInResponderChain:responder];
     if ([self setPreloadedScreenViewWithScreenId:screenId
                                  withUiResponder:responder]) {
       NSLog(@"ExpoRouter: Preloaded screen view updated.");
@@ -73,17 +78,74 @@
 
 - (nonnull NSArray<RNSScreenStackView *> *)
     findAllScreenStackViewsInResponderChain:(nonnull UIResponder *)responder {
-  NSMutableArray<RNSScreenStackView *> *stackViews = [NSMutableArray array];
+    NSMutableArray<RNSScreenStackView *> *stackViews = [NSMutableArray array];
+    
+    // Find the window containing this responder
+    UIWindow *window = nil;
+    UIResponder *currentResponder = responder;
+    
+    while (currentResponder) {
+        if ([currentResponder isKindOfClass:[UIWindow class]]) {
+            window = (UIWindow *)currentResponder;
+            break;
+        }
+        currentResponder = [currentResponder nextResponder];
+    }
+    
+    // If we found the window, search its entire view hierarchy
+    if (window) {
+        [self findScreenStackViewsInView:window stackViews:stackViews];
+    }
+    
+    return stackViews;
+}
+
+- (void)findScreenStackViewsInView:(UIView *)view stackViews:(NSMutableArray<RNSScreenStackView *> *)stackViews {
+    if ([view isKindOfClass:[RNSScreenStackView class]]) {
+        [stackViews addObject:(RNSScreenStackView *)view];
+    }
+    
+    if ([view isKindOfClass:[RNSBottomTabsScreenComponentView class]]) {
+        if (![stackViews containsObject:view]) {
+           RNSTabsScreenViewController* screenController = ((RNSBottomTabsScreenComponentView*)view).controller;
+           RNSTabBarController* tabBarController = [self findTabBarControllerInResponderChain:screenController];
+           for (UIViewController* controller in tabBarController.viewControllers) {
+               // Add condition for tabBarCOntrollers as well
+               [self findScreenStackViewsInView:controller.view stackViews:stackViews];
+           }
+       }
+    } else {
+        for (UIView *subview in view.subviews) {
+            [self findScreenStackViewsInView:subview stackViews:stackViews];
+        }
+    }
+}
+
+- (nullable RNSTabBarController *)findTabBarControllerInResponderChain:(nonnull UIResponder *)responder {
+    while (responder) {
+        responder = [responder nextResponder];
+        if ([responder isKindOfClass:[RNSTabBarController class]]) {
+            return (RNSTabBarController *)responder;
+        }
+    }
+    
+    return nil;
+}
+
+- (nonnull RNSTabsScreenViewController *)
+    findTabViewInResponderChain:(nonnull UIResponder *)responder {
+//  NSMutableArray<RNSTabsScreenViewController *> *stackViews = [NSMutableArray array];
 
   while (responder) {
     responder = [responder nextResponder];
-    if ([responder isKindOfClass:[RNSScreenStackView class]]) {
-      [stackViews addObject:(RNSScreenStackView *)responder];
+    if ([responder isKindOfClass:[RNSTabsScreenViewController class]]) {
+        return responder;
     }
   }
 
-  return stackViews;
+  return nil;
 }
+
 
 - (nonnull NSArray<RNSScreenView *> *)extractScreenViewsFromSubviews:
     (nonnull NSArray<UIView *> *)subviews {

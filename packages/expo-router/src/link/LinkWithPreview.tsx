@@ -152,7 +152,7 @@ export function LinkWithPreview({ children, ...rest }: LinkProps) {
       }}
       onPreviewTapped={() => {
         isPreviewTapped.current = true;
-        router.navigate(rest.href, { __internal__PreviewKey: nextScreenId });
+        // router.navigate(rest.href, { __internal__PreviewKey: nextScreenId });
       }}>
       <InternalLinkPreviewContext value={{ isVisible: isCurrentPreviewOpen, href: rest.href }}>
         <NativeLinkPreviewTrigger>
